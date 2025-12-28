@@ -1,0 +1,108 @@
+================================================================================
+CLAUDE NEOVIM PLUGIN - PROJECT INFORMATION
+================================================================================
+
+Project Name: Claude Neovim Plugin
+Location: ~/Documents/Gemini Projects/tools/claude-nvim-plugin
+Created: 2025-12-27
+Version: 1.0.0
+
+PURPOSE:
+--------
+Integrate Claude Code CLI into Neovim/LazyVim, providing AI assistance
+directly in the editor without requiring a separate API key.
+
+FEATURES:
+---------
+✅ Ask Claude questions from Neovim
+✅ Get code suggestions
+✅ Review entire files
+✅ Explain selected code
+✅ Generate code from descriptions
+✅ Uses existing Claude CLI auth (no API key needed)
+
+FILES:
+------
+README.md           - Project overview and main documentation
+MANUAL.md           - Complete user guide (detailed)
+QUICKSTART.md       - 2-minute getting started guide
+INSTALL.md          - Installation and troubleshooting
+CHANGELOG.md        - Version history and future plans
+PROJECT_INFO.txt    - This file
+
+install.sh          - Automated installation script
+update.sh           - Update existing installation
+uninstall.sh        - Remove plugin
+
+plugin/init.lua     - Main plugin source code (Lua)
+plugin-config.lua   - LazyVim configuration
+test.lua            - Test file for trying features
+
+examples/
+  workflow.md       - 10 detailed usage examples
+
+INSTALLATION:
+-------------
+./install.sh
+
+Or manually:
+cp plugin/init.lua ~/.config/nvim/lua/claude-mcp/init.lua
+cp plugin-config.lua ~/.config/nvim/lua/plugins/claude-mcp.lua
+
+USAGE:
+------
+<Space>ca  - Ask Claude a question
+<Space>cs  - Get code suggestions
+<Space>cr  - Review current file
+<Space>cg  - Generate code
+<Space>ce  - Explain selection (visual mode)
+
+COMMANDS:
+---------
+:ClaudeAsk [question]      - Ask Claude
+:ClaudeSuggest             - Get suggestions
+:ClaudeReview              - Review file
+:ClaudeGenerate [desc]     - Generate code
+
+HOW IT WORKS:
+-------------
+Neovim Plugin → claude --print "question" → Claude API → Response in vsplit
+
+Uses your existing `claude` CLI authentication.
+
+REQUIREMENTS:
+-------------
+- Neovim 0.9+
+- LazyVim
+- Claude Code CLI (authenticated)
+
+BEADS TRACKING:
+---------------
+Implementation task: deck-9pb (closed)
+Manual/Documentation: deck-87r (reference)
+
+NEXT STEPS:
+-----------
+1. Read QUICKSTART.md for 2-minute intro
+2. Read MANUAL.md for complete guide
+3. Try examples/workflow.md for real-world usage
+4. Customize keymaps if needed
+
+TROUBLESHOOTING:
+----------------
+1. Check :messages in Neovim
+2. Test: claude --print "test"
+3. Verify files: ls ~/.config/nvim/lua/claude-mcp/
+4. Reload: :Lazy reload claude-mcp
+
+CONTRIBUTING:
+-------------
+Create a bead: bd create "Claude plugin: [your suggestion]"
+
+LICENSE:
+--------
+MIT License - Free to use and modify
+
+================================================================================
+For help: cat MANUAL.md or cat QUICKSTART.md
+================================================================================

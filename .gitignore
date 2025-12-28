@@ -1,0 +1,16 @@
+# Neovim
+*.swp
+*.swo
+*~
+
+# Backup files
+*.backup
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
