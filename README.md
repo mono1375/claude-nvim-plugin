@@ -1,238 +1,355 @@
-# Claude Neovim Plugin
+# Claude Neovim Plugin - Multi-AI Assistant
 
-A custom Neovim plugin that integrates Claude Code CLI into LazyVim, providing AI assistance directly in your editor.
+A comprehensive Neovim plugin and CLI toolset that integrates multiple AI providers (Claude, Gemini, GitHub Copilot, OpenAI) with inline code suggestions, side-by-side diff views, and git integration.
 
-## Features
+## 🌟 Features
 
-- ✅ Ask Claude questions from Neovim
-- ✅ Get code suggestions for current file
-- ✅ Explain selected code
-- ✅ Review entire files
-- ✅ Generate code from descriptions
-- ✅ Uses existing Claude CLI authentication (no API key needed!)
+### Neovim Features
+- ✅ **Ask Claude questions** from Neovim
+- ✅ **Code suggestions** - Get AI-powered code improvements
+- ✅ **Review files** - Full code review with suggestions
+- ✅ **Explain code** - Understand complex code sections
+- ✅ **Generate code** - Create code from descriptions
+- ✅ **Inline Suggestions** - GitHub Copilot-style code suggestions
+- ✅ **Side-by-Side Diff** - Visual comparison of original vs AI suggestion
+- ✅ **Git Integration** - Shows git diff after applying changes
+- ✅ **Multi-Provider** - Switch between Claude, Gemini, Copilot, OpenAI
 
-## Installation
+### CLI Features
+- ✅ **Provider Switching** - Easy switching between AI providers
+- ✅ **Universal `ai` command** - One command for all providers
+- ✅ **Provider detection** - Auto-detects available AIs
 
-### Prerequisites
+## 📦 Installation
 
-1. **Neovim** (v0.9+)
-2. **LazyVim** installed
-3. **Claude Code CLI** installed and authenticated
+### Quick Install
 
-Verify Claude is installed:
 ```bash
-claude --version
+cd ~/Documents/"Gemini Projects"/tools/claude-nvim-plugin
+./install.sh
 ```
 
-### Install Steps
+This installs:
+- Neovim plugin (original features)
+- CLI tools (`ai`, `ai-switch`)
+- Multi-provider support
 
-1. **Copy plugin files:**
-```bash
-cp -r plugin/* ~/.config/nvim/lua/claude-mcp/
-cp plugin-config.lua ~/.config/nvim/lua/plugins/claude-mcp.lua
-```
+### Manual Install
 
-2. **Restart Neovim:**
 ```bash
+# 1. Install CLI tools
+cp cli/ai-switch ~/.local/bin/
+cp cli/ai ~/.local/bin/
+chmod +x ~/.local/bin/ai{,-switch}
+
+# 2. Install Neovim plugin
+cp plugin-config.lua ~/.config/nvim/lua/plugins/claude-nvim-plugin.lua
+
+# 3. Restart Neovim
 nvim
 ```
 
-You should see: "Claude integration loaded (using CLI)"
+## 🚀 Usage
 
-3. **Test it:**
-```
-:ClaudeAsk What is Lua?
-```
+### CLI Usage
 
-## Usage
+#### Provider Management
 
-### Commands
-
-| Command | Description | Example |
-|---------|-------------|---------|
-| `:ClaudeAsk [question]` | Ask Claude anything | `:ClaudeAsk How do I reverse a string?` |
-| `:ClaudeSuggest` | Get suggestions for current file | `:ClaudeSuggest` |
-| `:ClaudeReview` | Review current file | `:ClaudeReview` |
-| `:ClaudeGenerate [desc]` | Generate code | `:ClaudeGenerate fibonacci function` |
-
-### Keybindings
-
-| Keymap | Mode | Action |
-|--------|------|--------|
-| `<Space>ca` | Normal | Ask Claude a question |
-| `<Space>cs` | Normal | Get code suggestions |
-| `<Space>cr` | Normal | Review current file |
-| `<Space>cg` | Normal | Generate code |
-| `<Space>ce` | Visual | Explain selected code |
-
-### Workflow Examples
-
-#### 1. Ask a Question
-```
-Press: <Space>ca
-Type: "How do I read a file in Python?"
-Press: Enter
-```
-Response appears in a vertical split.
-
-#### 2. Get Code Suggestions
-```
-1. Open a code file
-2. Position cursor where you want help
-3. Press: <Space>cs
-```
-Claude analyzes your code and provides suggestions.
-
-#### 3. Explain Code
-```
-1. Press 'v' to enter visual mode
-2. Select code with j/k
-3. Press: <Space>ce
-4. Type question or press Enter for default
-```
-Claude explains the selected code.
-
-#### 4. Review File
-```
-Press: <Space>cr
-```
-Claude reviews your entire file for improvements.
-
-#### 5. Generate Code
-```
-Press: <Space>cg
-Type: "Create a function to validate email addresses"
-Press: Enter
-```
-
-## How It Works
-
-```
-Neovim Plugin → claude --print "question" → Claude API → Response in vsplit
-```
-
-- Uses `claude --print` command for non-interactive responses
-- Leverages your existing Claude Code CLI authentication
-- No additional API key or billing required
-- Responses open in vertical splits (close with `:q`)
-
-## Configuration
-
-The plugin is configured in `~/.config/nvim/lua/plugins/claude-mcp.lua`:
-
-```lua
-return {
-  {
-    dir = "~/.config/nvim/lua/claude-mcp",
-    name = "claude-mcp",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("claude-mcp").setup({
-        keymaps = true, -- Enable default keymaps
-      })
-    end,
-  },
-}
-```
-
-### Disable Keymaps
-
-To disable default keymaps and define your own:
-
-```lua
-require("claude-mcp").setup({
-  keymaps = false,
-})
-
--- Then define your own:
-vim.keymap.set("n", "<leader>ai", require("claude-mcp").ask)
-```
-
-## Troubleshooting
-
-### Commands don't work
-**Check Claude CLI is installed:**
 ```bash
-which claude
-# Should output: /home/deck/.local/bin/claude
+# List available AI providers
+ai-switch list
+
+# Switch to different providers
+ai-switch switch claude
+ai-switch switch gemini
+ai-switch switch copilot
+
+# Check current provider
+ai-switch current
+
+# Test a provider
+ai-switch test gemini
 ```
 
-**Test manually:**
+#### Universal AI Command
+
 ```bash
-claude --print "test"
+# Ask questions (uses current provider)
+ai "What is Python?"
+ai "Explain recursion"
+ai "How do I optimize this loop?"
 ```
 
-**Check authentication:**
+### Neovim Usage
+
+#### Original Features (Claude)
+
+| Command | Keymap | Description |
+|---------|--------|-------------|
+| `:ClaudeAsk [question]` | `<Space>ca` | Ask Claude anything |
+| `:ClaudeSuggest` | `<Space>cs` | Get code suggestions |
+| `:ClaudeReview` | `<Space>cr` | Review current file |
+| `:ClaudeGenerate [desc]` | `<Space>cg` | Generate code |
+| Visual + `<Space>ce` | - | Explain selection |
+
+#### New Features (Multi-AI + Inline)
+
+| Command | Keymap | Description |
+|---------|--------|-------------|
+| `:AISuggest` | `<Ctrl-Space>` | Inline AI suggestion with diff |
+| `:AIRefactor` | `<leader>ar` (visual) | Refactor selected code |
+| `:AIAccept` | `<leader>aa` | Accept AI suggestion |
+| `:AIReject` | `<leader>ax` | Reject suggestion |
+| `:AIGitDiff` | `<leader>ad` | Show git diff |
+| `:AISwitch <provider>` | - | Switch AI provider |
+
+## 🎯 Workflows
+
+### Workflow 1: Quick Question (Original Feature)
+
+```
+1. Press <Space>ca
+2. Type your question
+3. Response appears in split
+```
+
+### Workflow 2: Inline Suggestion (New Feature)
+
+```
+1. Position cursor in code
+2. Press <Ctrl-Space>
+3. AI analyzes and shows side-by-side diff
+   ┌────────────────┬────────────────┐
+   │   ORIGINAL     │  AI SUGGESTION │
+   └────────────────┴────────────────┘
+4. Press <leader>aa to accept or <leader>ax to reject
+5. See git diff of what changed
+```
+
+### Workflow 3: Refactor Code
+
+```
+1. Select code in visual mode (v)
+2. Press <leader>ar
+3. View refactored version in diff view
+4. Accept or reject
+```
+
+### Workflow 4: Switch Providers
+
 ```bash
-claude
-# Follow login prompts if needed
+# In terminal
+ai-switch switch gemini
+
+# In Neovim
+:AISwitch gemini
+# Now all AI commands use Gemini
 ```
 
-### No response appears
-**Check Neovim messages:**
+## 📋 Configuration
+
+Edit `~/Documents/Gemini Projects/tools/claude-nvim-plugin/config.yaml`:
+
+```yaml
+# Choose your default AI provider
+default_provider: claude
+
+providers:
+  claude:
+    enabled: true
+    command: claude
+    args: "--print"
+    auth: cli  # Uses Claude CLI authentication
+
+  gemini:
+    enabled: true
+    command: gemini
+    auth: env  # Requires GEMINI_API_KEY
+    env_var: GEMINI_API_KEY
+
+  copilot:
+    enabled: false  # Install: gh extension install github/gh-copilot
+
+  openai:
+    enabled: false  # Install: pip install openai
+
+features:
+  inline_suggestions: true
+  auto_trigger: false
+  delay_ms: 500
 ```
-:messages
+
+### Set API Keys
+
+```bash
+# Gemini
+export GEMINI_API_KEY="your-key-here"
+echo 'export GEMINI_API_KEY="your-key"' >> ~/.bashrc
+
+# OpenAI
+export OPENAI_API_KEY="your-key-here"
+echo 'export OPENAI_API_KEY="your-key"' >> ~/.bashrc
 ```
 
-Look for errors from Claude.
+## 🎨 Side-by-Side Diff View
 
-### Permission errors
-The `--print` flag automatically skips workspace trust dialogs. This is safe for your personal code.
-
-## File Structure
+When requesting inline suggestions:
 
 ```
-~/Documents/Gemini Projects/tools/claude-nvim-plugin/
-├── README.md                  # This file
-├── MANUAL.md                  # Detailed user manual
-├── INSTALL.md                 # Installation guide
-├── plugin/
-│   └── init.lua              # Main plugin code
-├── plugin-config.lua          # LazyVim plugin config
-├── test.lua                   # Test file
-└── examples/                  # Usage examples
-    └── workflow.md
+┌─────────────────────────┬─────────────────────────┐
+│       ORIGINAL          │     AI SUGGESTION       │
+├─────────────────────────┼─────────────────────────┤
+│ def calculate(nums):    │ def calculate(nums):    │
+│     total = 0           │     """Calculate sum    │
+│     for n in nums:      │     of numbers."""      │
+│         total += n      │     return sum(nums)    │
+│     return total        │                         │
+└─────────────────────────┴─────────────────────────┘
+
+        <leader>aa - Accept    <leader>ax - Reject
 ```
 
-## Differences from Copilot
+Features:
+- **Color-coded** - Red for deletions, green for additions
+- **Syntax highlighting** - Preserves language syntax
+- **Line-by-line** - Easy comparison
+- **Git integration** - Shows final diff after applying
 
-| Feature | This Plugin | GitHub Copilot |
-|---------|-------------|----------------|
-| Inline suggestions | ❌ | ✅ |
-| Question/Answer | ✅ | ❌ |
-| Code review | ✅ | ❌ |
-| Explanations | ✅ | Limited |
-| Authentication | Claude CLI | GitHub account |
-| Cost | Included with Claude | Separate subscription |
+## 🔧 Requirements
 
-This plugin is more like a **coding assistant** than autocomplete.
-
-## Tips
-
-- Close response splits quickly with `:q`
-- Use `:ClaudeReview` before committing code
-- Ask follow-up questions with `<Space>ca`
-- Select confusing code and press `<Space>ce` to understand it
-- Generate boilerplate with `<Space>cg`
-
-## Requirements
-
+### Neovim
 - Neovim 0.9+
 - LazyVim
-- Claude Code CLI (authenticated)
 
-## License
+### AI Providers (at least one)
+- **Claude CLI** ✅ (recommended, no API key)
+- **Gemini CLI** ✅ (requires GEMINI_API_KEY)
+- **GitHub Copilot** (install: `gh extension install github/gh-copilot`)
+- **OpenAI** (install: `pip install openai`)
+
+### System
+- Git (for diff features)
+- Bash/Zsh
+
+## 📖 All Keybindings
+
+### Original Features
+| Key | Mode | Action |
+|-----|------|--------|
+| `<Space>ca` | Normal | Ask Claude |
+| `<Space>cs` | Normal | Get suggestions |
+| `<Space>cr` | Normal | Review file |
+| `<Space>cg` | Normal | Generate code |
+| `<Space>ce` | Visual | Explain selection |
+
+### New Features
+| Key | Mode | Action |
+|-----|------|--------|
+| `<Ctrl-Space>` | Normal | Inline AI suggestion |
+| `<leader>ar` | Visual | Refactor selection |
+| `<leader>aa` | Normal | Accept suggestion |
+| `<leader>ax` | Normal | Reject suggestion |
+| `<leader>ad` | Normal | Show git diff |
+| `q` | Normal (in diff) | Close diff view |
+
+## 🐛 Troubleshooting
+
+### Plugin Not Loading
+```vim
+:Lazy reload claude-nvim-plugin
+:messages  # Check for errors
+```
+
+### Provider Not Working
+```bash
+ai-switch list  # Check available providers
+ai-switch test claude  # Test specific provider
+```
+
+### No Suggestions
+```vim
+:AISuggest  # Trigger manually
+:messages   # Check for errors
+```
+
+### API Key Issues
+```bash
+echo $GEMINI_API_KEY  # Verify env var
+```
+
+## 📂 Project Structure
+
+```
+claude-nvim-plugin/
+├── cli/
+│   ├── ai-switch           # Provider switcher
+│   └── ai                  # Universal AI command
+├── plugin/
+│   ├── init.lua            # Original Claude plugin
+│   └── ai-assistant/       # Multi-AI inline features
+│       ├── init.lua
+│       └── diff.lua
+├── config.yaml             # Multi-provider config
+├── plugin-config.lua       # LazyVim config
+├── install.sh              # Installer
+├── README.md               # This file
+├── MANUAL.md               # Detailed guide
+├── QUICKSTART.md           # Quick start
+└── examples/
+    └── workflow.md         # Usage examples
+```
+
+## 🎓 Tips
+
+1. **Start with Claude** - No API key needed, works out of the box
+2. **Use inline suggestions** - Press `<Ctrl-Space>` for copilot-style help
+3. **Review before accepting** - Always check the diff view
+4. **Check git diff** - See exactly what changed
+5. **Switch providers** - Try different AIs for different tasks
+6. **Learn keybindings** - Faster workflow
+
+## 🚀 Quick Start
+
+```bash
+# 1. Install
+cd ~/Documents/"Gemini Projects"/tools/claude-nvim-plugin
+./install.sh
+
+# 2. Try CLI
+ai "What is Python?"
+ai-switch list
+
+# 3. Try Neovim
+nvim test.py
+# Press <Ctrl-Space> for inline suggestion
+# Press <Space>ca to ask questions
+```
+
+## 📝 Changelog
+
+### v2.0.0 - Multi-AI Provider Support
+- Added provider switching (`ai-switch`)
+- Added universal `ai` command
+- Added inline suggestions with diff view
+- Added support for Gemini, Copilot, OpenAI
+- Added side-by-side diff viewer
+- Added git integration for change tracking
+- Merged all AI tools into one unified system
+
+### v1.0.0 - Initial Release
+- Claude CLI integration
+- Ask questions from Neovim
+- Code suggestions and review
+- Code generation
+
+## 🤝 Contributing
+
+This project is on GitHub: https://github.com/mono1375/claude-nvim-plugin
+
+## 📄 License
 
 MIT License - Free to use and modify
 
-## Support
+---
 
-For issues or questions:
-1. Check `:messages` in Neovim for errors
-2. Test `claude --print "test"` in terminal
-3. Create a bead: `bd create "Issue with Claude Neovim plugin"`
-
-## Credits
-
-Created for integrating Claude Code CLI with Neovim/LazyVim.
+**Built with ❤️ for seamless AI-assisted coding across multiple AI providers**

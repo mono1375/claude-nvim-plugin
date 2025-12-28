@@ -1,0 +1,45 @@
+# AI Assistant Configuration
+# Choose your default AI provider
+
+# Current active provider (change this to switch)
+default_provider: claude
+
+# Provider configurations
+providers:
+  claude:
+    enabled: true
+    command: claude
+    args: "--print"
+    auth: cli  # Uses Claude CLI authentication
+
+  gemini:
+    enabled: true
+    command: gemini
+    args: ""
+    auth: env  # Requires GEMINI_API_KEY
+    env_var: GEMINI_API_KEY
+
+  copilot:
+    enabled: false
+    command: gh
+    args: "copilot suggest"
+    auth: gh  # Requires GitHub Copilot subscription
+
+  openai:
+    enabled: false
+    command: openai
+    args: ""
+    auth: env  # Requires OPENAI_API_KEY
+    env_var: OPENAI_API_KEY
+
+# Feature settings
+features:
+  inline_suggestions: true
+  auto_trigger: true
+  delay_ms: 500
+  max_suggestions: 3
+
+# Fallback behavior
+fallback:
+  enabled: true
+  providers: [claude, gemini]  # Try in this order

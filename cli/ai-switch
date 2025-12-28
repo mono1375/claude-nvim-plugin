@@ -1,0 +1,201 @@
+#!/bin/bash
+# AI Provider Switcher
+# Easily switch between different AI CLI providers
+
+CONFIG_FILE="${AI_ASSISTANT_CONFIG:-$HOME/Documents/Gemini Projects/tools/ai-assistant/config.yaml}"
+
+# Colors
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+show_current() {
+    if [ ! -f "$CONFIG_FILE" ]; then
+        echo -e "${RED}Config file not found: $CONFIG_FILE${NC}"
+        exit 1
+    fi
+
+    current=$(grep "^default_provider:" "$CONFIG_FILE" | awk '{print $2}')
+    echo -e "${BLUE}Current AI Provider:${NC} ${GREEN}$current${NC}"
+}
+
+list_providers() {
+    echo -e "${BLUE}Available AI Providers:${NC}"
+    echo ""
+
+    # Check Claude
+    if command -v claude &> /dev/null; then
+        echo -e "  ${GREEN}✓${NC} claude  - $(claude --version 2>&1 | head -1)"
+    else
+        echo -e "  ${RED}✗${NC} claude  - Not installed"
+    fi
+
+    # Check Gemini
+    if command -v gemini &> /dev/null; then
+        echo -e "  ${GREEN}✓${NC} gemini  - $(gemini --version 2>&1 | head -1)"
+        if [ -z "$GEMINI_API_KEY" ]; then
+            echo -e "            ${YELLOW}⚠ GEMINI_API_KEY not set${NC}"
+        fi
+    else
+        echo -e "  ${RED}✗${NC} gemini  - Not installed"
+    fi
+
+    # Check Copilot
+    if gh extension list 2>/dev/null | grep -q copilot; then
+        echo -e "  ${GREEN}✓${NC} copilot - GitHub Copilot CLI"
+    else
+        echo -e "  ${RED}✗${NC} copilot - Not installed (gh extension install github/gh-copilot)"
+    fi
+
+    # Check OpenAI
+    if command -v openai &> /dev/null; then
+        echo -e "  ${GREEN}✓${NC} openai  - $(openai --version 2>&1 | head -1)"
+        if [ -z "$OPENAI_API_KEY" ]; then
+            echo -e "            ${YELLOW}⚠ OPENAI_API_KEY not set${NC}"
+        fi
+    else
+        echo -e "  ${RED}✗${NC} openai  - Not installed (pip install openai)"
+    fi
+
+    echo ""
+    show_current
+}
+
+switch_provider() {
+    provider=$1
+
+    if [ -z "$provider" ]; then
+        echo -e "${RED}Error: Provider name required${NC}"
+        echo "Usage: ai-switch <provider>"
+        echo "Available: claude, gemini, copilot, openai"
+        exit 1
+    fi
+
+    # Validate provider exists in config
+    if ! grep -q "^  $provider:" "$CONFIG_FILE"; then
+        echo -e "${RED}Error: Unknown provider '$provider'${NC}"
+        echo "Available: claude, gemini, copilot, openai"
+        exit 1
+    fi
+
+    # Update config file
+    sed -i "s/^default_provider:.*/default_provider: $provider/" "$CONFIG_FILE"
+
+    echo -e "${GREEN}✓${NC} Switched to ${BLUE}$provider${NC}"
+
+    # Test the provider
+    echo ""
+    echo -e "${BLUE}Testing $provider...${NC}"
+    ai-test "$provider"
+}
+
+test_provider() {
+    provider=${1:-$(grep "^default_provider:" "$CONFIG_FILE" | awk '{print $2}')}
+
+    case $provider in
+        claude)
+            if command -v claude &> /dev/null; then
+                echo -e "${GREEN}✓${NC} Claude CLI is ready"
+                echo "Test: claude --print 'Hello'"
+            else
+                echo -e "${RED}✗${NC} Claude CLI not found"
+            fi
+            ;;
+        gemini)
+            if command -v gemini &> /dev/null; then
+                if [ -n "$GEMINI_API_KEY" ]; then
+                    echo -e "${GREEN}✓${NC} Gemini CLI is ready"
+                    echo "Test: echo 'Hello' | gemini"
+                else
+                    echo -e "${YELLOW}⚠${NC} Gemini CLI found but GEMINI_API_KEY not set"
+                    echo "Set it with: export GEMINI_API_KEY='your-key'"
+                fi
+            else
+                echo -e "${RED}✗${NC} Gemini CLI not found"
+            fi
+            ;;
+        copilot)
+            if gh extension list 2>/dev/null | grep -q copilot; then
+                echo -e "${GREEN}✓${NC} GitHub Copilot is ready"
+                echo "Test: gh copilot suggest 'list files'"
+            else
+                echo -e "${RED}✗${NC} GitHub Copilot not installed"
+                echo "Install: gh extension install github/gh-copilot"
+            fi
+            ;;
+        openai)
+            if command -v openai &> /dev/null; then
+                if [ -n "$OPENAI_API_KEY" ]; then
+                    echo -e "${GREEN}✓${NC} OpenAI CLI is ready"
+                else
+                    echo -e "${YELLOW}⚠${NC} OpenAI CLI found but OPENAI_API_KEY not set"
+                    echo "Set it with: export OPENAI_API_KEY='your-key'"
+                fi
+            else
+                echo -e "${RED}✗${NC} OpenAI CLI not found"
+                echo "Install: pip install openai"
+            fi
+            ;;
+    esac
+}
+
+show_help() {
+    cat << 'EOF'
+AI Provider Switcher - Manage your AI CLI providers
+
+USAGE:
+    ai-switch <command> [options]
+
+COMMANDS:
+    list                List all available providers
+    switch <provider>   Switch to a different provider
+    current             Show current active provider
+    test [provider]     Test a provider
+    help                Show this help
+
+EXAMPLES:
+    ai-switch list              # List all providers
+    ai-switch switch claude     # Switch to Claude
+    ai-switch switch gemini     # Switch to Gemini
+    ai-switch current           # Show current provider
+    ai-switch test gemini       # Test Gemini provider
+
+PROVIDERS:
+    claude   - Claude Code CLI (uses CLI auth)
+    gemini   - Gemini CLI (requires GEMINI_API_KEY)
+    copilot  - GitHub Copilot (requires subscription)
+    openai   - OpenAI CLI (requires OPENAI_API_KEY)
+
+CONFIGURATION:
+    Config file: ~/Documents/Gemini Projects/tools/ai-assistant/config.yaml
+
+    Set custom location:
+        export AI_ASSISTANT_CONFIG=/path/to/config.yaml
+EOF
+}
+
+# Main command router
+case "${1:-list}" in
+    list|ls)
+        list_providers
+        ;;
+    switch|set|use)
+        switch_provider "$2"
+        ;;
+    current|show)
+        show_current
+        ;;
+    test|check)
+        test_provider "$2"
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    *)
+        echo -e "${RED}Unknown command: $1${NC}"
+        echo "Run 'ai-switch help' for usage"
+        exit 1
+        ;;
+esac

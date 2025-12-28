@@ -1,0 +1,43 @@
+#!/bin/bash
+# Universal AI CLI wrapper
+# Automatically uses the configured AI provider
+
+CONFIG_FILE="${AI_ASSISTANT_CONFIG:-$HOME/Documents/Gemini Projects/tools/ai-assistant/config.yaml}"
+
+get_provider() {
+    if [ -f "$CONFIG_FILE" ]; then
+        grep "^default_provider:" "$CONFIG_FILE" | awk '{print $2}'
+    else
+        echo "claude"  # Default fallback
+    fi
+}
+
+PROVIDER=$(get_provider)
+
+case "$PROVIDER" in
+    claude)
+        claude --print "$@"
+        ;;
+    gemini)
+        if [ -z "$GEMINI_API_KEY" ]; then
+            echo "Error: GEMINI_API_KEY not set" >&2
+            exit 1
+        fi
+        echo "$@" | gemini
+        ;;
+    copilot)
+        gh copilot suggest "$@"
+        ;;
+    openai)
+        if [ -z "$OPENAI_API_KEY" ]; then
+            echo "Error: OPENAI_API_KEY not set" >&2
+            exit 1
+        fi
+        openai chat "$@"
+        ;;
+    *)
+        echo "Error: Unknown provider '$PROVIDER'" >&2
+        echo "Run 'ai-switch list' to see available providers" >&2
+        exit 1
+        ;;
+esac

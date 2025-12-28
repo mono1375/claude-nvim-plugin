@@ -2,6 +2,65 @@
 
 All notable changes to the Claude Neovim Plugin will be documented in this file.
 
+## [2.0.0] - 2025-12-27
+
+### Added - Multi-AI Provider Support
+- **CLI Tools**:
+  - `ai-switch` command for switching between AI providers
+  - `ai` universal command that works with all providers
+  - Provider auto-detection and status checking
+
+- **Multi-Provider Support**:
+  - Claude CLI (existing, no API key needed)
+  - Gemini CLI integration (requires GEMINI_API_KEY)
+  - GitHub Copilot support (requires extension)
+  - OpenAI CLI support (requires API key)
+
+- **Inline Suggestions** (GitHub Copilot-style):
+  - Press `<Ctrl-Space>` for AI code suggestions
+  - Side-by-side diff view (original vs suggestion)
+  - Color-coded highlighting (red/green for changes)
+  - Syntax highlighting preservation
+
+- **Advanced Diff Features**:
+  - Visual side-by-side comparison
+  - Git integration showing what changed
+  - Accept/reject keybindings
+  - Line-by-line diff highlighting
+
+- **New Commands**:
+  - `:AISuggest` - Request inline suggestion
+  - `:AIRefactor` - Refactor selected code
+  - `:AIAccept` - Accept AI suggestion
+  - `:AIReject` - Reject suggestion
+  - `:AIGitDiff` - Show git diff
+  - `:AISwitch <provider>` - Switch AI provider
+
+- **New Keybindings**:
+  - `<Ctrl-Space>` - Inline AI suggestion
+  - `<leader>ar` - Refactor selection (visual mode)
+  - `<leader>aa` - Accept suggestion
+  - `<leader>ax` - Reject suggestion
+  - `<leader>ad` - Show git diff
+  - `q` - Close diff view
+
+- **Configuration System**:
+  - `config.yaml` for provider settings
+  - Per-provider configuration
+  - Feature toggles (inline suggestions, auto-trigger)
+
+### Changed
+- Merged all AI tools into unified claude-nvim-plugin repository
+- Updated README with multi-provider documentation
+- Enhanced project structure with cli/, plugin/, providers/ directories
+
+### Technical
+- Added provider abstraction layer
+- Implemented side-by-side diff viewer module
+- Git diff integration
+- Virtual text support for inline suggestions
+- Buffer management for diff views
+
 ## [1.0.0] - 2025-12-27
 
 ### Added
@@ -27,55 +86,32 @@ All notable changes to the Claude Neovim Plugin will be documented in this file.
 - Markdown syntax highlighting for responses
 - Configurable keymaps
 
-### Files Included
-- `plugin/init.lua` - Main plugin code
-- `plugin-config.lua` - LazyVim configuration
-- `README.md` - Project overview
-- `MANUAL.md` - Complete user guide
-- `INSTALL.md` - Installation instructions
-- `CHANGELOG.md` - This file
-- `install.sh` - Automated installation
-- `update.sh` - Update existing installation
-- `uninstall.sh` - Remove plugin
-- `test.lua` - Test file
-- `examples/workflow.md` - Usage examples
-
 ## Future Plans
 
-### Planned Features
-- [ ] Inline code suggestions (copilot-style)
-- [ ] Streaming responses
+### Planned Features for v2.1
+- [ ] Streaming responses for faster feedback
 - [ ] Context from multiple files
 - [ ] Project-wide refactoring suggestions
-- [ ] Integration with LSP
-- [ ] Custom system prompts
-- [ ] Response history
+- [ ] LSP integration
+- [ ] Custom system prompts per provider
+- [ ] Response history browser
 - [ ] Chat-style conversations
 - [ ] Telescope integration for history
-- [ ] Diff view for suggestions
-- [ ] Auto-apply code changes
-- [ ] Support for other editors (Vim, other Neovim distros)
+- [ ] Auto-apply code changes option
+- [ ] Support for more AI providers
 
 ### Improvements
-- [ ] Better error handling
+- [ ] Better error handling across providers
 - [ ] Rate limiting awareness
-- [ ] Progress indicators
+- [ ] Progress indicators for long operations
 - [ ] Configurable response window position
-- [ ] Syntax highlighting for code in responses
-- [ ] Copy code snippets easily
+- [ ] Enhanced syntax highlighting in diffs
 - [ ] Session persistence
 - [ ] Custom keymaps per language
 - [ ] Integration with `bd` (Beads) for task tracking
-
-## Contributing
-
-This is currently a personal project. If you have suggestions or improvements:
-
-1. Create a bead: `bd create "Claude plugin suggestion: [your idea]"`
-2. Document your idea
-3. Test locally
-4. Share your findings
+- [ ] Performance optimizations
 
 ## Version History
 
-- **1.0.0** (2025-12-27) - Initial release
+- **2.0.0** (2025-12-27) - Multi-AI provider support, inline suggestions, diff views
+- **1.0.0** (2025-12-27) - Initial release with Claude integration
